@@ -404,7 +404,7 @@ class AstroDedicatedServer():
 
                 try:
                     needs_update, latest_version = self.launcher.check_for_server_update(
-                        serverStart=True, check_only=True)
+                        serverStart=True, check_only=True, ignoreOn404=True)
 
                     if needs_update and self.launcher.launcherConfig.AutoUpdateServerSoftware:
                         self.save_and_shutdown()

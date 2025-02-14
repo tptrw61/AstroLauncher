@@ -14,6 +14,7 @@ import socket
 import subprocess
 import sys
 import time
+from urllib.error import HTTPError
 import zipfile
 from distutils import dir_util
 from threading import Thread
@@ -525,7 +526,7 @@ class AstroLauncher():
             AstroLogging.logPrint(
                 f"UPDATE TO {latest_version} FAILED.", "warning")
 
-    def check_for_server_update(self, serverStart=False, check_only=False):
+    def check_for_server_update(self, serverStart=False, check_only=False, ignoreOn404=False):
         try:
             # print('here1')
             if not self.launcherConfig.UpdateOnServerRestart and serverStart:
@@ -552,7 +553,14 @@ class AstroLauncher():
                 if cur_version == "0.0":
                     needs_update = True
                 url = "https://servercheck.spycibot.com/stats"
-                data = json.load(AstroRequests.get(url))
+                try:
+                    data = json.load(AstroRequests.get(url))
+                except HTTPError as e:
+                    if e.code == 404 and ignoreOn404:
+                        print(f"IGNORED: AstroLauncher.check_for_server_update: {e.__class__.__name__}: {e}")
+                        return False, "0.0"
+                    else:
+                        raise
                 # print(data)
 
                 # print('here6')
